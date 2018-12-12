@@ -29,7 +29,6 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
                displayActor ! Message ("Node " + this.id + " is created")
 
 
-               
                checkerActor ! Start
                beatActor ! Start
 
@@ -50,10 +49,16 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
 
           case BeatLeader (nodeId) =>
 
-          case Beat (nodeId) =>
+          case Beat (nodeId) =>{
+          for(node <- allNodes){
+            node ! IsAlive(nodeId)
+          }
+        }
+
 
           // Messages venant des autres nodes : pour nous dire qui est encore en vie ou mort
           case IsAlive (id) =>
+          checkerActor ! IsAlive(id)
 
           case IsAliveLeader (id) =>
 

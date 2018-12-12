@@ -45,13 +45,13 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
                self ! Initiate
           }
 
-          case Initiate => 
+          case Initiate =>
 
-          case ALG (list, init) => 
+          case ALG (list, init) =>
 
-          case AVS (list, j) => 
+          case AVS (list, j) =>
 
-          case AVSRSP (list, k) => 
+          case AVSRSP (list, k) =>
 
      }
 

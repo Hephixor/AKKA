@@ -21,30 +21,33 @@ case class LeaderChanged (nodeId:Int)
 
 class BeatActor (val id:Int) extends Actor {
 
-     val time : Int = 1000
-     val father = context.parent
-     var leader : Int = 0 // On estime que le premier Leader est 0
+  val time : Int = 1000
+  val father = context.parent
+  var leader : Int = 0 // On estime que le premier Leader est 0
 
-    def receive = {
+  def receive = {
 
-         // Initialisation
-        case Start => {
-             self ! BeatTick
-
-        }
-
-        // Objectif : prevenir tous les autres nodes qu'on est en vie
-        case BeatTick =>
-        if (this.id == this.leader) {
-             father ! Message ("I am the leader")
-        }
-        Thread.sleep(time)
-        self ! BeatTick
-
-
-
-        case LeaderChanged (nodeId) =>
+    // Initialisation
+    case Start => {
+      self ! BeatTick
 
     }
+
+    // Objectif : prevenir tous les autres nodes qu'on est en vie
+    case BeatTick => {
+
+      if (this.id == this.leader) {
+        father ! Message ("I am the leader")
+      }
+
+      father ! Beat(id)
+      Thread.sleep(1000)
+      self ! BeatTick
+    }
+
+
+    case LeaderChanged (nodeId) =>
+
+  }
 
 }

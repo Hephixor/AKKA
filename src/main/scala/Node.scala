@@ -47,7 +47,9 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
                displayActor ! Message (content)
           }
 
-          case BeatLeader (nodeId) =>
+          case BeatLeader (nodeId) => {
+            
+          }
 
           case Beat (nodeId) =>{
           for(node <- allNodes){

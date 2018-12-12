@@ -36,18 +36,17 @@ class BeatActor (val id:Int) extends Actor {
     // Objectif : prevenir tous les autres nodes qu'on est en vie
     case BeatTick => {
       if (this.id == this.leader) {
-        father ! Message ("I am the leader")
         father ! BeatLeader(id)
+        father ! Message ("I am the leader")
       }
+
       else{
         father ! Beat(id)
       }
 
       Thread.sleep(1000)
       self ! BeatTick
-
     }
-
 
     case LeaderChanged (nodeId) => {
       leader = nodeId

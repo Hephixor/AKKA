@@ -9,7 +9,7 @@ class DisplayActor extends Actor {
      def receive = {
 
           case Message (content) => {
-               println(content)
+               println("==== " + content)
           }
 
      }

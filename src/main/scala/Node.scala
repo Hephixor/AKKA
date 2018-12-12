@@ -27,8 +27,6 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           // Initialisation
           case Start => {
                displayActor ! Message ("Node " + this.id + " is created")
-
-
                checkerActor ! Start
                beatActor ! Start
 
@@ -48,7 +46,7 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           }
 
           case BeatLeader (nodeId) => {
-            displayActor ! Message ("BeatLeader")
+          //   displayActor ! Message ("BeatLeader")
             for(node <- allNodes){
               node ! IsAliveLeader(nodeId)
             }
@@ -59,6 +57,7 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           for(node <- allNodes){
             node ! IsAlive(nodeId)
           }
+          checkerActor ! IsAlive(nodeId)
         }
 
 
@@ -71,7 +70,10 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           }
 
           // Message indiquant que le leader a change
-          case LeaderChanged (nodeId) =>
+          case LeaderChanged (nodeId) =>{
+            displayActor ! Message ("Leader changed to " + nodeId)
+            beatActor ! LeaderChanged(nodeId)
+          }
 
      }
 

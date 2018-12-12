@@ -21,6 +21,8 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
   var lastDate:Date = null
 
   var leader : Int = -1
+  var lastSize : Int = -1
+
 
   def receive = {
 
@@ -35,12 +37,11 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
       if(!nodesAlive.contains(nodeId)){
         nodesAlive = nodeId::nodesAlive
       }
-      father ! Message ("List alive nodes " + nodesAlive+"")
     }
 
 
     case IsAliveLeader (nodeId) => {
-      father ! Message ("IsAliveLeader " + nodeId)
+      //father ! Message ("IsAliveLeader " + nodeId)
       if(!nodesAlive.contains(nodeId)){
         nodesAlive = nodeId::nodesAlive
       }
@@ -51,16 +52,27 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
     // Objectif : lancer l'election si le leader est mort
     case CheckerTick =>
     {
-        father ! Message ("Checker current list " + nodesAlive)
-        father ! Message ("Checker current leader " + leader)
-        if(!nodesAlive.contains(leader)) father!Message("PANIQUE")
-        nodesAlive = id:: List()
-        Thread.sleep(5000)
-        self ! CheckerTick
+      if(leader != -1){
+        //father ! Message ("leader not -1")
+        //father ! Message ("Checker lastSize " + lastSize)
+        //father ! Message ("Checker current list " + nodesAlive)
+        //father ! Message ("Checker current leader " + leader)
+        if(!nodesAlive.contains(leader)){
+          electionActor ! StartWithNodeList(nodesAlive)
+          electionActor ! ALG(nodesAlive,id)
+        }
+      }
+
+      if(lastSize!=nodesAlive.size){
+        father ! Message ("List alive nodes " + nodesAlive+"")
+      }
+
+      lastSize = nodesAlive.size
+      nodesAlive = id:: List()
+      Thread.sleep(2000)
+      self ! CheckerTick
     }
 
-
   }
-
 
 }

@@ -1,0 +1,4 @@
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/Node.scala:32:107: illegal start of simple expression[0m
+[0m[[0m[31merror[0m] [0m[0m               displayActor ! Message ("Leader : TODO   List : " + terminaux.foreach(n=>{if(n.id!= id { })}) )[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                                                          ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

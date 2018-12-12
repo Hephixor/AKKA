@@ -37,11 +37,15 @@ class BeatActor (val id:Int) extends Actor {
     case BeatTick => {
       if (this.id == this.leader) {
         father ! Message ("I am the leader")
+        father ! BeatLeader(id)
+      }
+      else{
+        father ! Beat(id)
       }
 
-      father ! Beat(id)
       Thread.sleep(1000)
       self ! BeatTick
+
     }
 
 

@@ -16,7 +16,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
   var time : Int = 200
   val father = context.parent
 
-  var lastNodesAlive:LIst[Int] = List()
+  var nodesAlive:List[Int] = List()
   var datesForChecking:List[Date] = List()
   var lastDate:Date = null
 
@@ -40,6 +40,10 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
 
 
     case IsAliveLeader (nodeId) => {
+      father ! Message ("IsAliveLeader " + nodeId)
+      if(!nodesAlive.contains(nodeId)){
+        nodesAlive = nodeId::nodesAlive
+      }
       leader = nodeId
     }
 
@@ -47,8 +51,10 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
     // Objectif : lancer l'election si le leader est mort
     case CheckerTick =>
     {
+        father ! Message ("Checker current list " + nodesAlive)
+        father ! Message ("Checker current leader " + leader)
         if(!nodesAlive.contains(leader)) father!Message("PANIQUE")
-        nodesAlive = List()
+        nodesAlive = id:: List()
         Thread.sleep(5000)
         self ! CheckerTick
     }

@@ -48,7 +48,11 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           }
 
           case BeatLeader (nodeId) => {
-            
+            displayActor ! Message ("BeatLeader")
+            for(node <- allNodes){
+              node ! IsAliveLeader(nodeId)
+            }
+            checkerActor ! IsAliveLeader(nodeId)
           }
 
           case Beat (nodeId) =>{
@@ -62,7 +66,9 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           case IsAlive (id) =>
           checkerActor ! IsAlive(id)
 
-          case IsAliveLeader (id) =>
+          case IsAliveLeader (id) =>{
+            checkerActor ! IsAliveLeader(id)
+          }
 
           // Message indiquant que le leader a change
           case LeaderChanged (nodeId) =>

@@ -1,4 +1,22 @@
-[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:37:32: value :: is not a member of Int[0m
-[0m[[0m[31merror[0m] [0m[0m        nodesAlive = nodesAlive::nodeId[0m
-[0m[[0m[31merror[0m] [0m[0m                               ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:19:22: not found: type LIst[0m
+[0m[[0m[31merror[0m] [0m[0m  var lastNodesAlive:LIst[Int] = List()[0m
+[0m[[0m[31merror[0m] [0m[0m                     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:30:7: not found: value nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m      nodesAlive = id::nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:35:11: not found: value nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m      if(!nodesAlive.contains(nodeId)){[0m
+[0m[[0m[31merror[0m] [0m[0m          ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:36:9: not found: value nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m        nodesAlive = nodeId::nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:38:47: not found: value nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m      father ! Message ("List alive nodes " + nodesAlive+"")[0m
+[0m[[0m[31merror[0m] [0m[0m                                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:50:13: not found: value nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m        if(!nodesAlive.contains(leader)) father!Message("PANIQUE")[0m
+[0m[[0m[31merror[0m] [0m[0m            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/CheckerActor.scala:51:9: not found: value nodesAlive[0m
+[0m[[0m[31merror[0m] [0m[0m        nodesAlive = List()[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m7 errors found[0m

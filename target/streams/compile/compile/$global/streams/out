@@ -1,4 +1,4 @@
-[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/ElectionActor.scala:61:49: not found: value succInd[0m
-[0m[[0m[31merror[0m] [0m[0m              father ! Message ("J'envoie à " + succInd)[0m
-[0m[[0m[31merror[0m] [0m[0m                                                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/charton/Bureau/M2/PPC/AKKA/src/main/scala/ElectionActor.scala:85:18: not found: value Condidate[0m
+[0m[[0m[31merror[0m] [0m[0m            case Condidate() => father ! Message("Je suis un candidat")[0m
+[0m[[0m[31merror[0m] [0m[0m                 ^[0m
 [0m[[0m[31merror[0m] [0m[0mone error found[0m

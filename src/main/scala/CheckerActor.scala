@@ -4,6 +4,7 @@ import java.util
 import java.util.Date
 
 import akka.actor._
+import BibPerso._
 
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,11 +60,11 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
         //father ! Message ("Checker current leader " + leader)
         if(!nodesAlive.contains(leader)){
           electionActor ! StartWithNodeList(nodesAlive)
-          electionActor ! ALG(nodesAlive,id)
         }
       }
 
       if(lastSize!=nodesAlive.size){
+        nodesAlive = quickSort(nodesAlive)
         father ! Message ("List alive nodes " + nodesAlive+"")
       }
 

@@ -76,5 +76,4 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           }
 
      }
-
 }

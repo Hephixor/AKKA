@@ -43,37 +43,45 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
       }
 
       // Debut de l'algorithme d'election
-      self ! Initiate
+      // Ne pas le lancer à check hearbeat pour ne pas relancer une election
+      // Lorsque celle en cours n'est pas finie
+      father ! Message("My status is " + status)
+      status match {
+        case Passive() => self ! Initiate
+        case _ =>
+      }
+
+
     }
 
     case Initiate =>
     {
-        println(father)
+        //println(father)
         father ! Message ("Init Election Process")
-
         // 1/ Status == Passive -> Candidate
         status = new Candidate()
-
         // Determine sucessor index
-        //Probleme avec l'index car il faut trier la liste des nodesAlive pour qu'elle soit consistente entre tout les acteurs
+        //Probleme avec l'index car il faut trier la liste des nodesAlive pour qu'elle soit consistante entre tout les acteurs
         nodesAlive = quickSort(nodesAlive)
-        var index = nodesAlive.indexOf(id)
 
-        if(id != nodesAlive.last){
-          var succInd = nodesAlive(index + 1)
-          father ! Message ("Candidate list " + nodesAlive)
-          father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index " + (index+1) + "/" + (nodesAlive.size - 1))
-
-
-          var succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(succInd).id + "@" + terminaux(succInd).ip + ":" + terminaux(succInd).port + "/user/Node")
-          succ ! ALG(nodesAlive, id)
+        //Si on est seul on passe le process d'election et on devient directement leader
+        if(nodesAlive.length==1){
+          self ! AVSRSP(List(),id)
         }
         else{
-
-          father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index 0/" + (nodesAlive.size - 1))
-
-          val succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(0).id + "@" + terminaux(0).ip + ":" + terminaux(0).port + "/user/Node")
-          succ ! ALG(nodesAlive,id)
+          var index = nodesAlive.indexOf(id)
+          var succInd = -1
+          if(id != nodesAlive.last){
+            succInd = nodesAlive(index + 1)
+          }
+          else{
+            succInd = (nodesAlive(0))
+          }
+        //  father ! Message ("Candidate list " + nodesAlive)
+        //  father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index " + (index+1) + "/" + (nodesAlive.size - 1))
+          var succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(succInd).id + "@" + terminaux(succInd).ip + ":" + terminaux(succInd).port + "/user/Node/electionActor")
+          father ! Message ("Sending ALG")
+          succ ! ALG(nodesAlive, id)
         }
     }
 
@@ -86,12 +94,20 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
             case Candidate() => father ! Message("Je suis un candidat")
         }
 
-
     }
 
     case AVS (list, j) =>
 
     case AVSRSP (list, k) =>
+    {
+      if(list.length==0){
+        father ! LeaderChanged(k)
+      }
+      else{
+        //TOdo
+      }
+
+    }
 
   }
 

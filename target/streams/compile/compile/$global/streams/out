@@ -1,7 +1,4 @@
-[0m[[0m[31merror[0m] [0m[0m/home/skylab/UPMC/M2S1/PPC/AKKA/src/main/scala/ElectionActor.scala:47:14: pattern type is incompatible with expected type;[0m
-[0m[[0m[31merror[0m] [0m[0m found   : upmc.akka.leader.Passive.type[0m
-[0m[[0m[31merror[0m] [0m[0m required: upmc.akka.leader.NodeStatus[0m
-[0m[[0m[31merror[0m] [0m[0mNote: if you intended to match against the class, try `case Passive()`[0m
-[0m[[0m[31merror[0m] [0m[0m        case Passive => self ! Initiate[0m
-[0m[[0m[31merror[0m] [0m[0m             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/charton/Bureau/M2/PPC/AKKA/src/main/scala/ElectionActor.scala:115:5: illegal start of simple expression[0m
+[0m[[0m[31merror[0m] [0m[0m    }[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
 [0m[[0m[31merror[0m] [0m[0mone error found[0m

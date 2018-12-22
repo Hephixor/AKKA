@@ -45,7 +45,7 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
       // Debut de l'algorithme d'election
       // Ne pas le lancer à check hearbeat pour ne pas relancer une election
       // Lorsque celle en cours n'est pas finie
-      father ! Message("My status is " + status)
+      // father ! Message("My status is " + status)
       status match {
         case Passive() => self ! Initiate
         case _ =>
@@ -59,7 +59,11 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         //println(father)
         father ! Message ("Init Election Process")
         // 1/ Status == Passive -> Candidate
-        status = new Candidate()
+        status match {
+            case Passive() => status = new Candidate()
+            case _ =>
+        }
+
         // Determine sucessor index
         //Probleme avec l'index car il faut trier la liste des nodesAlive pour qu'elle soit consistante entre tout les acteurs
         nodesAlive = quickSort(nodesAlive)
@@ -90,25 +94,74 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         father ! Message("J'ai reçu un ALG")
         status match
         {
-            case Passive() => status = new Dummy(); father ! Message("Je suis un Dummy")
-            case Candidate() => father ! Message("Je suis un candidat")
-        }
+            case Passive() => status = new Dummy(); father ! Message("Je suis un Dummy"); self ! Initiate
+            case Candidate() =>
+            {
+                father ! Message("Je suis un candidat")
+                candPred = init
+                if(id > init)
+                {
+                    val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(init).id + "@" + terminaux(init).ip + ":" + terminaux(init).port + "/user/Node/electionActor")
+                    if(candSucc == -1) actor ! AVS(list, id);status = new Waiting()
+                    else actor ! AVSPR(list, candPred)
+                }
 
+                if (id == init) self ! AVSPR(list, id)
+            }
+        }
     }
 
-    case AVS (list, j) =>
+    case AVS (list, j) => status match
+    {
+        case Candidate() =>
+        {
+            if(candPred == -1) candSucc = j
+            else
+            {
+                val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(j).id + "@" + terminaux(j).ip + ":" + terminaux(j).port + "/user/Node/electionActor")
+                actor ! AVSRSP(list, candPred)
+                status = new Dummy()
+            }
+        }
+
+        case Waiting() => candSucc = j
+    }
 
     case AVSRSP (list, k) =>
     {
-      if(list.length==0){
-        father ! LeaderChanged(k)
-      }
-      else{
-        //TOdo
-      }
-
+        if(list.length == 0)
+        {
+            father ! LeaderChanged(k)
+        }
+        else
+        {
+            status match
+            {
+                case Waiting() =>
+                {
+                    if(id == k) father ! LeaderChanged(id)
+                    else
+                    {
+                        candPred = k
+                        if(candPred == -1)
+                        {
+                            if(k < i)
+                            {
+                                val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(k).id + "@" + terminaux(k).ip + ":" + terminaux(k).port + "/user/Node/electionActor")
+                                status = new Waiting()
+                                actor ! AVS(list, id)
+                            }
+                        }
+                        else
+                        {
+                            val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(candSucc).id + "@" + terminaux(candSucc).ip + ":" + terminaux(candSucc).port + "/user/Node/electionActor")
+                            status = new Dummy()
+                            actor ! AVSPR(list, k)
+                        }
+                    }
+                }
+            }
+        }
     }
-
   }
-
 }

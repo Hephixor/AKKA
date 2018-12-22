@@ -53,25 +53,25 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
     // Objectif : lancer l'election si le leader est mort
     case CheckerTick =>
     {
-      if(leader != -1){
-        //father ! Message ("leader not -1")
-        //father ! Message ("Checker lastSize " + lastSize)
-        //father ! Message ("Checker current list " + nodesAlive)
-        //father ! Message ("Checker current leader " + leader)
-        if(!nodesAlive.contains(leader)){
-          electionActor ! StartWithNodeList(nodesAlive)
+        println(nodesAlive)
+        if(nodesAlive.size >= 2)
+        {
+            if(!nodesAlive.contains(leader) && leader != -1)
+            {
+                electionActor ! StartWithNodeList(nodesAlive)
+            }
+        }else if(lastSize != -1) electionActor ! StartWithNodeList(nodesAlive)
+
+        if(lastSize!=nodesAlive.size)
+        {
+            nodesAlive = quickSort(nodesAlive)
+            father ! Message ("List alive nodes " + nodesAlive+"")
         }
-      }
 
-      if(lastSize!=nodesAlive.size){
-        nodesAlive = quickSort(nodesAlive)
-        father ! Message ("List alive nodes " + nodesAlive+"")
-      }
-
-      lastSize = nodesAlive.size
-      nodesAlive = id:: List()
-      Thread.sleep(2000)
-      self ! CheckerTick
+        lastSize = nodesAlive.size
+        nodesAlive = id:: List()
+        Thread.sleep(5000)
+        self ! CheckerTick
     }
 
   }

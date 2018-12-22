@@ -23,7 +23,7 @@ class BeatActor (val id:Int) extends Actor {
 
   val time : Int = 1000
   val father = context.parent
-  var leader : Int = 0 // On estime que le premier Leader est 0
+  var leader : Int = -1 // On estime que le premier Leader est 0
 
   def receive = {
 
@@ -35,10 +35,10 @@ class BeatActor (val id:Int) extends Actor {
 
     // Objectif : prevenir tous les autres nodes qu'on est en vie
     case BeatTick => {
-      if (this.id == this.leader) {
-        father ! BeatLeader(id)
-        father ! Message ("I am the leader")
-      }
+        if (this.id == this.leader) {
+            father ! BeatLeader(id)
+            father ! Message ("I am the leader")
+        }
 
       else{
         father ! Beat(id)

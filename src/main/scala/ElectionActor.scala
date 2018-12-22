@@ -102,11 +102,15 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
                 if(id > init)
                 {
                     val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(init).id + "@" + terminaux(init).ip + ":" + terminaux(init).port + "/user/Node/electionActor")
-                    if(candSucc == -1) actor ! AVS(list, id);status = new Waiting()
-                    else actor ! AVSPR(list, candPred)
+                    if(candSucc == -1)
+                    {
+                        actor ! AVS(list, id)
+                        status = new Waiting()
+                    }
+                    else actor ! AVSRSP(list, candPred)
                 }
 
-                if (id == init) self ! AVSPR(list, id)
+                if (id == init) self ! AVSRSP(list, id)
             }
         }
     }
@@ -145,7 +149,7 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
                         candPred = k
                         if(candPred == -1)
                         {
-                            if(k < i)
+                            if(k < id)
                             {
                                 val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(k).id + "@" + terminaux(k).ip + ":" + terminaux(k).port + "/user/Node/electionActor")
                                 status = new Waiting()
@@ -156,7 +160,7 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
                         {
                             val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(candSucc).id + "@" + terminaux(candSucc).ip + ":" + terminaux(candSucc).port + "/user/Node/electionActor")
                             status = new Dummy()
-                            actor ! AVSPR(list, k)
+                            actor ! AVSRSP(list, k)
                         }
                     }
                 }

@@ -54,17 +54,21 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
     // Objectif : lancer l'election si le leader est mort
     case CheckerTick =>
     {
-      
+
       //println(nodesAlive)
       if(nodesAlive.size >= 2)
       {
-        if(!nodesAlive.contains(leader) && leader != -1)
+        if(!nodesAlive.contains(leader) && leader != -2)
         {
-          electionActor ! StartWithNodeList(nodesAlive)
+            println("COUCOU")
+            leader = -2
+            electionActor ! StartWithNodeList(nodesAlive)
         }
       }
 
-      else if(lastSize != -1){
+      else if(lastSize != -1 && leader == -1){
+          println("coucou")
+        leader = -2
         electionActor ! StartWithNodeList(nodesAlive)
       }
 

@@ -51,7 +51,8 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         case _ =>
       } */
 
-      self ! Initiate
+        status = new Passive()
+        self ! Initiate
 
 
     }
@@ -61,60 +62,85 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         //println(father)
         father ! Message ("Init Election Process")
         // 1/ Status == Passive -> Candidate
-        status match {
-            case Passive() => status = new Candidate()
+        status match
+        {
+            case Passive() =>
+            {
+                status = new Candidate()
+
+                candPred = -1
+                candSucc = -1
+
+                // Determine sucessor index
+                //Probleme avec l'index car il faut trier la liste des nodesAlive pour qu'elle soit consistante entre tout les acteurs
+                nodesAlive = quickSort(nodesAlive)
+
+                //Si on est seul on passe le process d'election et on devient directement leader
+                if(nodesAlive.length == 1)
+                {
+                    self ! AVSRSP(List(),id)
+                }
+                else
+                {
+                    var index = nodesAlive.indexOf(id)
+                    var succInd = -1
+                    if(id != nodesAlive.last) succInd = nodesAlive(index + 1)
+                    else succInd = (nodesAlive(0))
+                    father ! Message ("Election NodesAlive " + nodesAlive)
+                    //  father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index " + (index+1) + "/" + (nodesAlive.size - 1))
+                    var succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(succInd).id + "@" + terminaux(succInd).ip + ":" + terminaux(succInd).port + "/user/Node/electionActor")
+                    father ! Message ("Sending ALG to Node(" + terminaux(succInd).id+")")
+                    succ ! ALG(nodesAlive, id)
+                }
+            }
             case _ =>
-        }
-
-        // Determine sucessor index
-        //Probleme avec l'index car il faut trier la liste des nodesAlive pour qu'elle soit consistante entre tout les acteurs
-        nodesAlive = quickSort(nodesAlive)
-
-        //Si on est seul on passe le process d'election et on devient directement leader
-        if(nodesAlive.length==1){
-          self ! AVSRSP(List(),id)
-        }
-        else{
-          var index = nodesAlive.indexOf(id)
-          var succInd = -1
-          if(id != nodesAlive.last){
-            succInd = nodesAlive(index + 1)
-          }
-          else{
-            succInd = (nodesAlive(0))
-          }
-          father ! Message ("Election NodesAlive " + nodesAlive)
-        //  father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index " + (index+1) + "/" + (nodesAlive.size - 1))
-          var succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(succInd).id + "@" + terminaux(succInd).ip + ":" + terminaux(succInd).port + "/user/Node/electionActor")
-          father ! Message ("Sending ALG to Node(" + terminaux(succInd).id+")")
-          succ ! ALG(nodesAlive, id)
         }
     }
 
     case ALG (list, init) =>
     {
         father ! Message("J'ai reçu un ALG")
+        println("INIT : "+init)
         status match
         {
-            case Passive() => status = new Dummy(); father ! Message("Je suis un Dummy"); self ! Initiate
+            case Passive() =>
+            {
+                status = new Dummy()
+                father ! Message("Je suis un dummy")
+
+                var index = list.indexOf(id)
+                var succInd = -1
+                if(id != list.last) succInd = list(index + 1)
+                else succInd = (list(0))
+                father ! Message ("Election NodesAlive " + list)
+                //  father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index " + (index+1) + "/" + (nodesAlive.size - 1))
+                var succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(succInd).id + "@" + terminaux(succInd).ip + ":" + terminaux(succInd).port + "/user/Node/electionActor")
+                father ! Message ("Sending ALG to Node(" + terminaux(succInd).id+")")
+                succ ! ALG(list, id)
+            }
             case Candidate() =>
             {
                 father ! Message("Je suis un candidat")
                 candPred = init
                 if(id > init)
                 {
-                    val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(init).id + "@" + terminaux(init).ip + ":" + terminaux(init).port + "/user/Node/electionActor")
                     if(candSucc == -1)
                     {
-                        actor ! AVS(list, id)
+                        val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(init).id + "@" + terminaux(init).ip + ":" + terminaux(init).port + "/user/Node/electionActor")
                         father ! Message("Status Waiting")
                         status = new Waiting()
+                        actor ! AVS(list, id)
                     }
-                    else actor ! AVSRSP(list, candPred)
+                    else
+                    {
+                        val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(candSucc).id + "@" + terminaux(candSucc).ip + ":" + terminaux(candSucc).port + "/user/Node/electionActor")
+                        actor ! AVSRSP(list, candPred)
+                        status = new Dummy()
+                    }
                 }
-
-                if (id == init) self ! AVSRSP(list, id)
+                if (id == init) father ! LeaderChanged(id)
             }
+            case _ =>
         }
     }
 
@@ -136,12 +162,13 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         }
 
         case Waiting() => candSucc = j
+        case _ =>
     }
   }
 
     case AVSRSP (list, k) =>
     {
-      father ! Message("J'ai reçu un AVSRSP")
+        father ! Message("J'ai reçu un AVSRSP")
         if(list.length == 0)
         {
             father ! LeaderChanged(k)
@@ -173,6 +200,8 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
                         }
                     }
                 }
+
+                case _ =>
             }
         }
     }

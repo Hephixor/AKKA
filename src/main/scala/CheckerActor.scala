@@ -14,7 +14,7 @@ case class CheckerTick () extends Tick
 
 class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:ActorRef) extends Actor {
 
-  var time : Int = 200
+  var time : Int = 2000
   val father = context.parent
 
   var nodesAlive:List[Int] = List()
@@ -29,6 +29,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
 
     // Initialisation
     case Start => {
+      Thread.sleep(time)
       self ! CheckerTick
       nodesAlive = id::nodesAlive
     }
@@ -42,7 +43,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
 
 
     case IsAliveLeader (nodeId) => {
-      //father ! Message ("IsAliveLeader " + nodeId)
+      father ! Message ("Received IsAliveLeader " + nodeId)
       if(!nodesAlive.contains(nodeId)){
         nodesAlive = nodeId::nodesAlive
       }
@@ -53,25 +54,30 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
     // Objectif : lancer l'election si le leader est mort
     case CheckerTick =>
     {
-        println(nodesAlive)
-        if(nodesAlive.size >= 2)
+      
+      //println(nodesAlive)
+      if(nodesAlive.size >= 2)
+      {
+        if(!nodesAlive.contains(leader) && leader != -1)
         {
-            if(!nodesAlive.contains(leader) && leader != -1)
-            {
-                electionActor ! StartWithNodeList(nodesAlive)
-            }
-        }else if(lastSize != -1) electionActor ! StartWithNodeList(nodesAlive)
-
-        if(lastSize!=nodesAlive.size)
-        {
-            nodesAlive = quickSort(nodesAlive)
-            father ! Message ("List alive nodes " + nodesAlive+"")
+          electionActor ! StartWithNodeList(nodesAlive)
         }
+      }
 
-        lastSize = nodesAlive.size
-        nodesAlive = id:: List()
-        Thread.sleep(5000)
-        self ! CheckerTick
+      else if(lastSize != -1){
+        electionActor ! StartWithNodeList(nodesAlive)
+      }
+
+
+      if(lastSize!=nodesAlive.size)
+      {
+        nodesAlive = quickSort(nodesAlive)
+      }
+
+      lastSize = nodesAlive.size
+      nodesAlive = id:: List()
+      Thread.sleep(time)
+      self ! CheckerTick
     }
 
   }

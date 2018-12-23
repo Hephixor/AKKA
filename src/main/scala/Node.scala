@@ -27,9 +27,9 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
           // Initialisation
           case Start => {
                displayActor ! Message ("Node " + this.id + " is created")
-               checkerActor ! Start
-               beatActor ! Start
 
+               beatActor ! Start
+               checkerActor ! Start
                // Initilisation des autres remote, pour communiquer avec eux
                terminaux.foreach(n => {
                     if (n.id != id) {
@@ -67,6 +67,8 @@ class Node (val id:Int, val terminaux:List[Terminal]) extends Actor {
 
           case IsAliveLeader (id) =>{
             checkerActor ! IsAliveLeader(id)
+            //MAJ the leader ?
+            beatActor ! LeaderChanged(id)
           }
 
           // Message indiquant que le leader a change

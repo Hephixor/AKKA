@@ -43,13 +43,15 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
       }
 
       // Debut de l'algorithme d'election
-      // Ne pas le lancer à check hearbeat pour ne pas relancer une election
+      // Ne pas le lancer à check heartbeat pour ne pas relancer une election
       // Lorsque celle en cours n'est pas finie
       // father ! Message("My status is " + status)
-      status match {
+      /* status match {
         case Passive() => self ! Initiate
         case _ =>
-      }
+      } */
+
+      self ! Initiate
 
 
     }
@@ -81,10 +83,10 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
           else{
             succInd = (nodesAlive(0))
           }
-        //  father ! Message ("Candidate list " + nodesAlive)
+          father ! Message ("Election NodesAlive " + nodesAlive)
         //  father ! Message ("Je suis à l'index " + index + "/" + (nodesAlive.size - 1) + " J'envoie à l'index " + (index+1) + "/" + (nodesAlive.size - 1))
           var succ = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(succInd).id + "@" + terminaux(succInd).ip + ":" + terminaux(succInd).port + "/user/Node/electionActor")
-          father ! Message ("Sending ALG")
+          father ! Message ("Sending ALG to Node(" + terminaux(succInd).id+")")
           succ ! ALG(nodesAlive, id)
         }
     }
@@ -105,6 +107,7 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
                     if(candSucc == -1)
                     {
                         actor ! AVS(list, id)
+                        father ! Message("Status Waiting")
                         status = new Waiting()
                     }
                     else actor ! AVSRSP(list, candPred)
@@ -115,8 +118,12 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         }
     }
 
-    case AVS (list, j) => status match
+    case AVS (list, j) =>
     {
+      father ! Message("J'ai reçu un AVS")
+      status match
+    {
+
         case Candidate() =>
         {
             if(candPred == -1) candSucc = j
@@ -130,9 +137,11 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
 
         case Waiting() => candSucc = j
     }
+  }
 
     case AVSRSP (list, k) =>
     {
+      father ! Message("J'ai reçu un AVSRSP")
         if(list.length == 0)
         {
             father ! LeaderChanged(k)

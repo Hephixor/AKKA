@@ -68,7 +68,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
         }
       }
 
-      else if(lastSize != -1 && leader != id)
+      else if(lastSize != -1 && leader != id && leader != -1)
       {
           println("coucou")
           leader = -1

@@ -53,6 +53,7 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
         case _ =>
       } */
 
+        father ! Message ("Init Election Process")
         timer = 0
         status = new Passive()
         self ! Initiate
@@ -63,7 +64,6 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
     case Initiate =>
     {
         //println(father)
-        //father ! Message ("Init Election Process")
         if(timer <= 5000)
         {
             timer = timer + 1

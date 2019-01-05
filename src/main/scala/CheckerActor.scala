@@ -14,7 +14,7 @@ case class CheckerTick () extends Tick
 
 class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:ActorRef) extends Actor {
 
-  var time : Int = 200
+  var time : Int = 2000
   val father = context.parent
 
   var nodesAlive:List[Int] = List()
@@ -29,7 +29,11 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
 
     // Initialisation
     case Start => {
-      Thread.sleep(time)
+      // temps de pause avant le premier checkerTick
+      // il peut être utile de le modifier si un node entrant n'a pas le temps
+      // de recevoir de BeatTick des autres nodes en se connectant
+      // avant de lancer une élection
+      Thread.sleep(time+2000)
       self ! CheckerTick
       nodesAlive = id::nodesAlive
     }
@@ -54,37 +58,30 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
     // Objectif : lancer l'election si le leader est mort
     case CheckerTick =>
     {
-
-      //println(nodesAlive)
+      // println("checkerTick || nodesAlive = " + nodesAlive + " || Leader = " + leader)
       if(nodesAlive.size >= 2)
       {
-        //  println("LEADER : "+leader)
         if(!nodesAlive.contains(leader) && leader != -1)
         {
-          //  println("COUCOU")
-            father ! LeaderChanged(-1)
-            leader = -1
-            electionActor ! StartWithNodeList(nodesAlive)
+          father ! LeaderChanged(-1)
+          leader = -1
+          electionActor ! StartWithNodeList(nodesAlive)
         }
       }
 
       else if(lastSize != -1 && leader != id && leader != -1)
       {
-        //  println("coucou")
-          leader = -1
-          electionActor ! StartWithNodeList(nodesAlive)
+        leader = -1
+        electionActor ! StartWithNodeList(nodesAlive)
       }
 
-
-      if(lastSize!=nodesAlive.size)
-      {
-        nodesAlive = quickSort(nodesAlive)
-      }
+      if(lastSize!=nodesAlive.size) nodesAlive = quickSort(nodesAlive)
 
       lastSize = nodesAlive.size
       nodesAlive = id:: List()
       Thread.sleep(time)
       self ! CheckerTick
+
     }
 
   }

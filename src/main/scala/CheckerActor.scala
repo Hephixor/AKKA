@@ -14,7 +14,7 @@ case class CheckerTick () extends Tick
 
 class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:ActorRef) extends Actor {
 
-  var time : Int = 2000
+  var time : Int = 200
   val father = context.parent
 
   var nodesAlive:List[Int] = List()
@@ -43,7 +43,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
 
 
     case IsAliveLeader (nodeId) => {
-      father ! Message ("Received IsAliveLeader " + nodeId)
+      //father ! Message ("Received IsAliveLeader " + nodeId)
       if(!nodesAlive.contains(nodeId)){
         nodesAlive = nodeId::nodesAlive
       }
@@ -58,10 +58,10 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
       //println(nodesAlive)
       if(nodesAlive.size >= 2)
       {
-          println("LEADER : "+leader)
+        //  println("LEADER : "+leader)
         if(!nodesAlive.contains(leader) && leader != -1)
         {
-            println("COUCOU")
+          //  println("COUCOU")
             father ! LeaderChanged(-1)
             leader = -1
             electionActor ! StartWithNodeList(nodesAlive)
@@ -70,7 +70,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
 
       else if(lastSize != -1 && leader != id && leader != -1)
       {
-          println("coucou")
+        //  println("coucou")
           leader = -1
           electionActor ! StartWithNodeList(nodesAlive)
       }

@@ -21,7 +21,7 @@ case class LeaderChanged (nodeId:Int)
 
 class BeatActor (val id:Int) extends Actor {
 
-  val time : Int = 500
+  val time : Int = 50
   val father = context.parent
   var leader : Int = -1 // On estime que le premier Leader est 0
 
@@ -41,7 +41,7 @@ class BeatActor (val id:Int) extends Actor {
         }
 
       else{
-        father ! Message("My leader is " + this.leader)
+      //  father ! Message("My leader is " + this.leader)
         father ! Beat(id)
       }
 

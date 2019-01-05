@@ -64,7 +64,7 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
     case Initiate =>
     {
         //println(father)
-        if(timer <= 5000)
+        if(timer <= 500)
         {
             timer = timer + 1
             Thread.sleep(1)

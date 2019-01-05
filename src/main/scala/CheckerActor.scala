@@ -21,7 +21,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
   var datesForChecking:List[Date] = List()
   var lastDate:Date = null
 
-  var leader : Int = -1
+  var leader : Int = -2
   var lastSize : Int = -1
 
 
@@ -58,18 +58,21 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
       //println(nodesAlive)
       if(nodesAlive.size >= 2)
       {
-        if(!nodesAlive.contains(leader) && leader != -2)
+          println("LEADER : "+leader)
+        if(!nodesAlive.contains(leader) && leader != -1)
         {
             println("COUCOU")
-            leader = -2
+            father ! LeaderChanged(-1)
+            leader = -1
             electionActor ! StartWithNodeList(nodesAlive)
         }
       }
 
-      else if(lastSize != -1 && leader == -1){
+      else if(lastSize != -1 && leader != id)
+      {
           println("coucou")
-        leader = -2
-        electionActor ! StartWithNodeList(nodesAlive)
+          leader = -1
+          electionActor ! StartWithNodeList(nodesAlive)
       }
 
 

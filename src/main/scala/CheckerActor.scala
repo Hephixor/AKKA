@@ -33,7 +33,7 @@ class CheckerActor (val id:Int, val terminaux:List[Terminal], electionActor:Acto
       // il peut être utile de le modifier si un node entrant n'a pas le temps
       // de recevoir de BeatTick des autres nodes en se connectant
       // avant de lancer une élection
-      Thread.sleep(time+2000)
+      Thread.sleep(time)
       self ! CheckerTick
       nodesAlive = id::nodesAlive
     }

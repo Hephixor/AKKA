@@ -162,9 +162,8 @@ class ElectionActor (val id:Int, val terminaux:List[Terminal]) extends Actor {
             else
             {
               candPred = k
-              if(candPred == -1)
+              if(candSucc == -1)
               {
-
                 if(k < id)
                 {
                   val actor = context.actorSelection("akka.tcp://LeaderSystem" + terminaux(k).id + "@" + terminaux(k).ip + ":" + terminaux(k).port + "/user/Node/electionActor")
